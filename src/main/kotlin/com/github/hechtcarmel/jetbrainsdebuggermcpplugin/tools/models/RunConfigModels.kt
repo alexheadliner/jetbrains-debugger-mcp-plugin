@@ -61,3 +61,19 @@ data class StopSessionResult(
     val status: String,
     val message: String
 )
+
+@Serializable
+data class RunSessionInfo(
+    val id: String,
+    val name: String,
+    val state: String,
+    val processId: Long? = null,
+    val executorId: String? = null,
+    val runConfigurationName: String? = null
+)
+
+@Serializable
+data class RunSessionListResult(
+    val sessions: List<RunSessionInfo>,
+    val totalCount: Int
+)

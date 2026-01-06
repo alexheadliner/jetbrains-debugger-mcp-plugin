@@ -6,11 +6,13 @@ This document provides detailed documentation for all 22 MCP tools available in 
 
 Tools are organized into categories based on functionality:
 
-### Run Configuration Tools (2)
+### Run Configuration Tools (4)
 
 | Tool | Description |
 |------|-------------|
 | `list_run_configurations` | List all available run configurations |
+| `list_run_sessions` | List all active run sessions |
+| `stop_run_session` | Stop a run session |
 | `execute_run_configuration` | Execute a run configuration in run or debug mode |
 
 ### Debug Session Tools (4)
@@ -75,6 +77,8 @@ Tools are organized into categories based on functionality:
 - [Common Parameters](#common-parameters)
 - [Run Configuration Tools](#run-configuration-tools)
   - [list_run_configurations](#list_run_configurations)
+  - [list_run_sessions](#list_run_sessions)
+  - [stop_run_session](#stop_run_session)
   - [execute_run_configuration](#execute_run_configuration)
 - [Debug Session Tools](#debug-session-tools)
   - [list_debug_sessions](#list_debug_sessions)
@@ -180,6 +184,65 @@ Lists all run configurations available in the project.
 
 ---
 
+### list_run_sessions
+
+Lists all active run sessions (run-only processes, not debug sessions).
+
+**Use when:**
+- Monitoring active run processes
+- Checking which run configurations are currently executing
+- Finding process IDs for running applications
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `project_path` | string | No | Project path |
+
+**Example Request:**
+
+```json
+{
+  "method": "tools/call",
+  "params": {
+    "name": "list_run_sessions",
+    "arguments": {}
+  }
+}
+```
+
+**Example Response:**
+
+```json
+{
+  "sessions": [
+    {
+      "id": "run_session_12345",
+      "name": "Application",
+      "state": "running",
+      "processId": 12345,
+      "executorId": "Run",
+      "runConfigurationName": "Application"
+    },
+    {
+      "id": "run_session_67890",
+      "name": "Build Project",
+      "state": "running",
+      "processId": 67890,
+      "executorId": "Build",
+      "runConfigurationName": "Build Project"
+    }
+  ],
+  "totalCount": 2
+}
+```
+
+**Session State Values:**
+- `running` - Process is actively executing
+- `stopped` - Process has terminated
+
+---
+
 ### execute_run_configuration
 
 Executes a run configuration in either 'run' or 'debug' mode.
@@ -222,6 +285,50 @@ Executes a run configuration in either 'run' or 'debug' mode.
   "message": "Started 'UserServiceTest' in debug mode"
 }
 ```
+
+---
+
+### stop_run_session
+
+Stops/terminates a run session.
+
+**Use when:**
+- Ending a run session
+- Stopping a running application
+- Cleaning up after running tests
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `session_id` | string | No | Session to stop (uses first available if omitted) |
+| `project_path` | string | No | Project path |
+
+**Example Request:**
+
+```json
+{
+  "method": "tools/call",
+  "params": {
+    "name": "stop_run_session",
+    "arguments": {
+      "session_id": "run_session_12345"
+    }
+  }
+}
+```
+
+**Example Response:**
+
+```json
+{
+  "status": "stopped",
+  "sessionId": "run_session_12345",
+  "message": "Run session stopped"
+}
+```
+
+**Note:** If no `session_id` is provided, the tool will stop the first available run session.
 
 ---
 
