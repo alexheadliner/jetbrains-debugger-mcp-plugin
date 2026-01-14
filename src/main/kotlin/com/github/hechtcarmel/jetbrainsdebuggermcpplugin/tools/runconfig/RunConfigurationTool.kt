@@ -11,9 +11,11 @@ import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.openapi.project.Project
+import com.intellij.xdebugger.XDebuggerManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray
@@ -73,23 +75,43 @@ class RunConfigurationTool : AbstractMcpTool() {
         }
 
         return try {
+            val sessionCountBefore = XDebuggerManager.getInstance(project).debugSessions.size
+
             // Execute the configuration on the EDT (Main UI Thread)
             withContext(Dispatchers.Main) {
                 ProgramRunnerUtil.executeConfiguration(settings, executor)
             }
 
-            // Wait briefly for the process to start and become visible in ExecutionManager
-            // This delay might need adjustment based on startup time of the application/config
-            delay(500) // Increased delay to ensure process is ready
+            val processHandler = if (mode == "debug") {
+                // Wait for the session to be created (with timeout)
+                val newSession = withTimeoutOrNull(10000L) {
+                    while (true) {
+                        delay(100)
+                        val sessions = XDebuggerManager.getInstance(project).debugSessions
+                        if (sessions.size > sessionCountBefore) {
+                            val newest = sessions.lastOrNull()
+                            if (newest != null) {
+                                return@withTimeoutOrNull newest
+                            }
+                        }
+                    }
+                    @Suppress("UNREACHABLE_CODE")
+                    null
+                }
+                newSession?.debugProcess?.processHandler
+            } else {
+                // Wait briefly for the process to start and become visible in ExecutionManager
+                delay(500) // Increased delay to ensure process is ready
+                attachListenerToNewProcess(project)
+            }
 
-            // Attach listener to the newly started process
-            val processHandler = attachListenerToNewProcess(project)
-            val sessionId = processHandler?.hashCode()?.toString()
-
-            if (sessionId != null) {
+            if (processHandler != null) {
+                if (!ProcessLogManager.hasListener(processHandler.hashCode())) {
+                    ProcessLogManager.attachListener(processHandler)
+                }
                 createJsonResult(
                     SessionInfo(
-                        id = sessionId,
+                        id = processHandler.hashCode().toString(),
                         name = configName,
                         type = mode,
                         state = "running",
