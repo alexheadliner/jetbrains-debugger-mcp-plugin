@@ -1,6 +1,5 @@
 package com.github.hechtcarmel.jetbrainsdebuggermcpplugin.util
 
-import com.intellij.execution.ExecutionManager
 import com.intellij.execution.impl.ConsoleViewImpl
 import com.intellij.execution.process.ProcessAdapter
 import com.intellij.execution.process.ProcessEvent
@@ -56,17 +55,6 @@ object ProcessLogManager {
         }
     }
 
-    // --- Existing Listener Logic (kept as fallback for headless/background processes) ---
-
-    fun attachListenerToAllRunningProcesses(project: Project) {
-        val executionManager = ExecutionManager.getInstance(project)
-        val runningProcesses = executionManager.getRunningProcesses()
-
-        for (processHandler in runningProcesses) {
-            attachListener(processHandler)
-        }
-    }
-
     fun attachListener(processHandler: ProcessHandler): Int {
         val processHashCode = processHandler.hashCode()
         if (registeredListeners.putIfAbsent(processHashCode, true) == null) {
@@ -87,7 +75,7 @@ object ProcessLogManager {
         return processHashCode
     }
 
-    fun getCapturedOutput(processHandler: ProcessHandler): String {
+    private fun getCapturedOutput(processHandler: ProcessHandler): String {
         return outputBuffers[processHandler.hashCode()]?.toString() ?: ""
     }
 

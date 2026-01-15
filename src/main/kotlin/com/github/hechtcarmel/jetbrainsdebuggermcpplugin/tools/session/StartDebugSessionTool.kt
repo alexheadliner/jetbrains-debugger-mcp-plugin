@@ -16,7 +16,6 @@ import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
@@ -96,7 +95,7 @@ class StartDebugSessionTool : AbstractMcpTool() {
                 createJsonResult(StartDebugSessionResult(
                     status = "started",
                     message = "Debug session started for: $configName",
-                    session_info = SessionInfo(
+                    sessionInfo = SessionInfo(
                         id = processHandler.hashCode().toString(),
                         name = newSession.sessionName,
                         type = "debug",
@@ -109,7 +108,7 @@ class StartDebugSessionTool : AbstractMcpTool() {
                 createJsonResult(StartDebugSessionResult(
                     status = "starting",
                     message = "Debug session starting for: $configName (may take a moment to initialize)",
-                    session_info = null
+                    sessionInfo = null
                 ))
             }
         } catch (e: Exception) {
@@ -122,5 +121,5 @@ class StartDebugSessionTool : AbstractMcpTool() {
 data class StartDebugSessionResult(
     val status: String,
     val message: String,
-    val session_info: SessionInfo?
+    val sessionInfo: SessionInfo?
 )

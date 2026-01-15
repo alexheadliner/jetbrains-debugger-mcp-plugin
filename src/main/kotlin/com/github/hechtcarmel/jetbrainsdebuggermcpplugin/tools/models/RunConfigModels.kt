@@ -29,18 +29,6 @@ data class RunConfigurationListResult(
 )
 
 /**
- * Result of run_configuration tool.
- */
-@Serializable
-data class RunConfigurationResult(
-    val configurationName: String,
-    val mode: String,
-    val status: String,
-    val message: String,
-    val sessionId: String? = null
-)
-
-/**
  * Result of execution control tools (resume, pause, step_over, etc.)
  */
 @Serializable
@@ -60,23 +48,6 @@ data class StopSessionResult(
     val sessionId: String,
     val status: String,
     val message: String
-)
-
-@Serializable
-data class RunSessionInfo(
-    val id: String,
-    val name: String,
-    val state: String,
-    val processId: Long? = null,
-    val executorId: String? = null,
-    val runConfigurationName: String? = null,
-    val additionalInfo: Map<String, String?>
-)
-
-@Serializable
-data class RunSessionListResult(
-    val sessions: List<RunSessionInfo>,
-    val totalCount: Int
 )
 
 @Serializable

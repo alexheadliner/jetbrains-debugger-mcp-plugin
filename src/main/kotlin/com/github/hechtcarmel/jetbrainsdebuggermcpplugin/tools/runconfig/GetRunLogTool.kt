@@ -81,7 +81,7 @@ class GetRunLogTool : AbstractMcpTool() {
         }
 
         val debuggerManager = XDebuggerManager.getInstance(project)
-        debuggerManager.getDebugSessions().forEach {
+        debuggerManager.debugSessions.forEach {
             val ph = it.debugProcess.processHandler
             if (it.hashCode().toString() == sessionId) return ph
             if (isMatch(ph, sessionId)) return ph
