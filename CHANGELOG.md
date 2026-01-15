@@ -4,13 +4,13 @@
 
 ## [Unreleased]
 
+## [3.1.1] - 2026-01-15
+
 ### Added
 - Added new 'get_run_log' tool that allows to get logs from run configurations in both 'run' and 'debug' modes.
 
 ### Changed
 - updated 'list_debug_sessions' tool now shows both 'run' and 'debug' mode sessions
-
-## [3.1.1] - 2026-01-15
 
 ## [3.1.0] - 2026-01-07
 
