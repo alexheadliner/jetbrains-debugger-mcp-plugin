@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap
 object ProcessLogManager {
 
     private val outputBuffers = ConcurrentHashMap<Int, StringBuilder>()
-    private val registeredListeners = ConcurrentHashMap<Int, Boolean>()
 
     /**
      * Retrieves the full log content for a process.
@@ -57,17 +56,14 @@ object ProcessLogManager {
 
     fun attachListener(processHandler: ProcessHandler): Int {
         val processHashCode = processHandler.hashCode()
-        if (registeredListeners.putIfAbsent(processHashCode, true) == null) {
-            val outputBuilder = StringBuilder()
-            outputBuffers[processHashCode] = outputBuilder
-
+        if (outputBuffers.putIfAbsent(processHashCode, StringBuilder()) == null) {
             val processAdapter = object : ProcessAdapter() {
                 override fun onTextAvailable(event: ProcessEvent, outputType: com.intellij.openapi.util.Key<*>) {
                     outputBuffers[processHashCode]?.append(event.text)
                 }
 
                 override fun processTerminated(event: ProcessEvent) {
-                    registeredListeners.remove(processHashCode)
+                    // Buffer retained for log retrieval after process ends
                 }
             }
             processHandler.addProcessListener(processAdapter)
@@ -80,6 +76,6 @@ object ProcessLogManager {
     }
 
     fun hasListener(processHashCode: Int): Boolean {
-        return registeredListeners.containsKey(processHashCode)
+        return outputBuffers.containsKey(processHashCode)
     }
 }
