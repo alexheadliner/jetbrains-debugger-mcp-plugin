@@ -5,10 +5,13 @@ import com.intellij.execution.process.ProcessAdapter
 import com.intellij.execution.process.ProcessEvent
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.ui.RunContentManager
+import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
 import java.util.concurrent.ConcurrentHashMap
 
 object ProcessLogManager {
+
+    private val LOG = thisLogger<ProcessLogManager>()
 
     private val outputBuffers = ConcurrentHashMap<Int, StringBuilder>()
 
@@ -49,7 +52,7 @@ object ProcessLogManager {
             }
             ""
         } catch (e: Exception) {
-            println("[ProcessLogManager] Error reading from ConsoleView: ${e.message}")
+            LOG.debug("Error reading from ConsoleView: ${e.message}")
             ""
         }
     }

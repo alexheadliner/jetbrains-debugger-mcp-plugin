@@ -4,7 +4,7 @@
 
 ## [Unreleased]
 
-## [3.1.1] - 2026-01-15
+## [3.2.0] - 2026-01-15
 
 ### Added
 - Added new 'get_run_log' tool that allows to get logs from run configurations in both 'run' and 'debug' modes.

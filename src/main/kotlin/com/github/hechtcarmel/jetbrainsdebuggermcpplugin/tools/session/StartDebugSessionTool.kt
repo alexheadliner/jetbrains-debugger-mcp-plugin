@@ -8,6 +8,7 @@ import com.github.hechtcarmel.jetbrainsdebuggermcpplugin.util.ProcessLogManager
 import com.intellij.execution.ProgramRunnerUtil
 import com.intellij.execution.RunManager
 import com.intellij.execution.executors.DefaultDebugExecutor
+import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -26,6 +27,8 @@ import kotlinx.serialization.json.putJsonObject
  * Starts a new debug session from a run configuration.
  */
 class StartDebugSessionTool : AbstractMcpTool() {
+
+    private val LOG = thisLogger<StartDebugSessionTool>()
 
     override val name = "start_debug_session"
 
@@ -88,7 +91,7 @@ class StartDebugSessionTool : AbstractMcpTool() {
             if (newSession != null) {
                 val processHandler = newSession.debugProcess.processHandler
                 if (!ProcessLogManager.hasListener(processHandler.hashCode())) {
-                    println("[StartDebugSessionTool] Attaching listener to process: ${processHandler.hashCode()}")
+                    LOG.debug("Attaching listener to process: ${processHandler.hashCode()}")
                     ProcessLogManager.attachListener(processHandler)
                 }
 

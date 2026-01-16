@@ -10,6 +10,7 @@ import com.intellij.execution.RunManager
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.process.ProcessHandler
+import com.intellij.openapi.diagnostic.thisLogger
 import com.intellij.openapi.project.Project
 import com.intellij.xdebugger.XDebuggerManager
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +25,9 @@ import kotlinx.serialization.json.*
  * Use this tool to start a debug session from a specific run configuration.
  */
 class RunConfigurationTool : AbstractMcpTool() {
+
+    private val LOG = thisLogger<RunConfigurationTool>()
+
     override val name = "execute_run_configuration"
     override val description = """
         Executes a run configuration in either 'run' or 'debug' mode.
@@ -140,14 +144,14 @@ class RunConfigurationTool : AbstractMcpTool() {
             for (processHandler in runningProcesses) {
                 val processHashCode = processHandler.hashCode()
                 if (!ProcessLogManager.hasListener(processHashCode)) {
-                    println("[RunConfigurationTool] Found new process to attach listener: $processHashCode")
+                    LOG.debug("Found new process to attach listener: $processHashCode")
                     ProcessLogManager.attachListener(processHandler)
                     return processHandler // Return the handler that was just listened to
                 }
             }
             delay(2000) // Wait a bit before checking again
         }
-        println("[RunConfigurationTool] Could not find a new process to attach listener to after several attempts.")
+        LOG.debug("Could not find a new process to attach listener to after several attempts.")
         return null
     }
 
