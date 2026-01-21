@@ -43,7 +43,28 @@ class GetRunLogTool : AbstractMcpTool() {
 
         // 1. Resolve the process
         val processHandler = resolveRunSession(project, sessionId)
-            ?: return createErrorResult("Run session not found: $sessionId")
+
+        if (processHandler == null) {
+            // If process is not running, check the in-memory buffer
+            val bufferedLog = sessionId.toIntOrNull()?.let { ProcessLogManager.getCapturedOutput(it) }
+            if (bufferedLog != null) {
+                val allLines = bufferedLog.lines()
+                val totalLines = allLines.size
+                val startIndex = maxOf(0, totalLines - lines)
+                val returnedLines = allLines.drop(startIndex)
+
+                return createJsonResult(
+                    RunLogResult(
+                        sessionId = sessionId,
+                        log = returnedLines.joinToString("\n"),
+                        totalLines = totalLines,
+                        returnedLines = returnedLines.size
+                    )
+                )
+            } else {
+                return createErrorResult("Run session not found: $sessionId")
+            }
+        }
 
         // 2. Ensure we are tracking it (legacy fallback)
         if (!ProcessLogManager.hasListener(processHandler.hashCode())) {

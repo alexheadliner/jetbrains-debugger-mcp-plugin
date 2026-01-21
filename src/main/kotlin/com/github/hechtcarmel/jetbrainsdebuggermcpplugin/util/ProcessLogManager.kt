@@ -74,6 +74,10 @@ object ProcessLogManager {
         return processHashCode
     }
 
+    fun getCapturedOutput(sessionId: Int): String? {
+        return outputBuffers[sessionId]?.toString()
+    }
+
     private fun getCapturedOutput(processHandler: ProcessHandler): String {
         return outputBuffers[processHandler.hashCode()]?.toString() ?: ""
     }
